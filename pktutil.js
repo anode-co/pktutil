@@ -1,6 +1,7 @@
 /*@flow*/
 const Http = require('http');
 const Querystring = require('querystring');
+const Request = require('request');
 
 const Minimist = require('minimist');
 const RpcClient = require('bitcoind-rpc');
@@ -70,6 +71,30 @@ const height = (ctx, _args, then) => {
         }
     });
 };
+const commafy = (number) => {
+    return ('' + number).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+const balance = (ctx, args, then) => {
+    if (!/[a-zA-Z0-9]+/.test(args._[0])) {
+        return void then(`${args._[0]} is not a valid PKT address`);
+    }
+    Request(ctx.cfg.explorerGetBalance + args._[1], (err, _response, body) => {
+        if (err) {
+            return void then(err);
+        }
+        let balance = -1;
+        try {
+            const msg = JSON.parse(body);
+            if (msg.error) { return void then('Explorer replied: ' + msg.error); }
+            //console.log(msg);
+            balance = Number(msg.balance) / 0x40000000;
+        } catch (e) {
+            return void then(err);
+        }
+        then(null, `**${commafy(Math.floor(balance))}**` +
+            (''+Math.floor(balance*100)/100).replace(/^[0-9]+/, '') + ' PKT');
+    });
+};
 
 let COMMANDS = {};
 const help = (ctx, _args, then) => {
@@ -81,6 +106,7 @@ COMMANDS = {
     diff:    { cmd: diff,    args: {}, help: 'Get the current PKT difficulty' },
     mempool: { cmd: mempool, args: {}, help: 'Show transactions which are currently in the mempool' },
     height:  { cmd: height,  args: {}, help: 'Get the current block height' },
+    balance: { cmd: balance, args: { _: 1 }, help: 'Get the PKT balance for an address' },
     help:    { cmd: help,    args: {}, help: 'Print this message' },
 };
 
@@ -90,14 +116,14 @@ const main = (cfg) => {
         rpc: new RpcClient(Config.pktd),
     });
     Http.createServer((req, res) => {
-        console.log('hit ' + req.url);
+        console.log(req.method + ' ' + req.url);
         const data = [];
         req.on('data', (d) => data.push(d));
         req.on('end', () => {
             const q = Querystring.parse(data.join(''));
             //console.log(q);
             const args = Minimist(q.text.split(' '), {
-                boolean: 'noisy',
+                boolean: [ 'noisy' ],
             });
             const cmd = args._[0] || 'help';
 

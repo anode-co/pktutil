@@ -9,4 +9,5 @@ module.exports = Object.freeze({
         rejectUnauthorized: false
     },
     httpPort: 9999,
+    explorerGetBalance: 'https://pkt.cash/api/v1/PKT/pkt/address/',
 });
