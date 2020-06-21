@@ -1,0 +1,19 @@
+{
+  "name": "pktutil",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Anode LLC",
+  "license": "GPL-3.0-only",
+  "devDependencies": {
+    "jshint": "^2.11.1"
+  },
+  "dependencies": {
+    "bitcoind-rpc": "^0.8.1",
+    "minimist": "^1.2.5",
+    "nthen": "^0.1.10"
+  }
+}
