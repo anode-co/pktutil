@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "bitcoind-rpc": "^0.8.1",
-    "minimist": "^1.2.5",
+    "minimist": "^1.2.6",
     "nthen": "^0.1.10",
     "request": "^2.88.2"
   }
